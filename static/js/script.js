@@ -13,16 +13,8 @@ class EndPoint {
             topHeadlines: {
                 endPoint: "https://newsapi.org/v2/top-headlines",
                 params: {
-                    country: [],
-                    category: [
-                        "business",
-                        "entertainment",
-                        "general",
-                        "health",
-                        "science",
-                        "sports",
-                        "technology"
-                    ],
+                    country: ["in"],
+                    category: ["general"],
                     sources: [],
                     q: "",
                     pageSize: 20,           // Default, max 100
@@ -98,11 +90,22 @@ class EndPoint {
     }
 
     updateTopHeadlinesUrl() {
-        // let url = "";
+        this.topHeadlinesUrl = `${this.endPoints.topHeadlines}?apiKey=${this.apiKey}`;
 
-        // url += this.endPoints.topHeadlines.endPoint + "?" + "country=" + this.endPoints.topHeadlines.params.country[0].code + "&" + "apiKey=" + this.apiKey;
+        if(this.endPoints.topHeadlines.params.q !== "")
+            this.topHeadlinesUrl += `&q=${this.endPoints.topHeadlines.params.q}`;
+        if(this.endPoints.topHeadlines.params.category.length !== 0)
+            this.topHeadlinesUrl += `&category=${this.endPoints.topHeadlines.params.category.join(" ")}`;
+        if(this.endPoints.topHeadlines.params.country.length !== 0)
+            this.topHeadlinesUrl += `&country=${this.endPoints.topHeadlines.params.country.join(" ")}`;
+        if(this.endPoints.topHeadlines.params.sources.length !== 0)
+            this.topHeadlinesUrl += `&sources=${this.endPoints.topHeadlines.params.sources.join(" ")}`;
+        if(this.endPoints.topHeadlines.params.pageSize === 0)
+            this.topHeadlinesUrl += `&pageSize=${this.endPoints.topHeadlines.params.pageSize}`;
+        if(this.endPoints.topHeadlines.params.page >= 1)
+            this.topHeadlinesUrl += `&page=${this.endPoints.topHeadlines.params.page}`;
 
-        // return encodeURI(url);
+        console.log(this.topHeadlinesUrl);
     }
 
     updateSourcesUrl() {
@@ -126,10 +129,8 @@ class DOM {
         return option;
     }
 
-    populateInputFieldOptions(countries, sources) {
-        const endpoint = new EndPoint();
-
-        this.populateCategoryField(endpoint.endPoints.topHeadlines.params.category);
+    populateInputFieldOptions(categories, countries, sources) {
+        this.populateCategoryField(categories);
         this.populateCountryField(countries);
         this.populateSourcesField(sources);
     }
@@ -166,17 +167,18 @@ class DataFetch {
     constructor() {
         this.endpoint = new EndPoint();
 
+        this.categories = [];
         this.countries = [];
         this.sources = [];
     }
 
-    getCountriesAndSources() {
+    getCategoriesCountriesAndSources() {
         this.endpoint.updateSourcesUrl();
         
         return fetch(this.endpoint.sourcesUrl);
     }
 
-    storeCountriesAndSources(response) {
+    storeCategoriesCountriesAndSources(response) {
         console.log('Response is: ', response);
 
         if(response.status === "ok") {
@@ -186,11 +188,14 @@ class DataFetch {
                     this.countries.push(source.country);
                 if(this.sources.indexOf(source.id) === -1)
                     this.sources.push(source.id);
+                if(this.categories.indexOf(source.category) === -1)
+                    this.categories.push(source.category);
             });
         } else {
             console.log(`Response error: code: ${response.code}\nmessage: ${response.message}`);
         }
         
+        this.categories.sort();
         this.countries.sort();
     }
 }
@@ -327,9 +332,9 @@ function createOptionsForInputFields() {
     const dataObj = new DataFetch();
     const domObj = new DOM();
 
-    dataObj.getCountriesAndSources()
+    dataObj.getCategoriesCountriesAndSources()
         .then(res => res.json())
-        .then(res => dataObj.storeCountriesAndSources(res))
-        .then(() => domObj.populateInputFieldOptions(dataObj.countries, dataObj.sources))
+        .then(res => dataObj.storeCategoriesCountriesAndSources(res))
+        .then(() => domObj.populateInputFieldOptions(dataObj.categories, dataObj.countries, dataObj.sources))
         .catch(err => console.log(err));
 }

@@ -5,6 +5,7 @@ window.onload = startScript;
 class EndPoint {
     constructor() {
         this.topHeadlinesUrl = "";
+        this.sourcesUrl = "";
 
         this.apiKey = "9b73824e82ba4b5eaae944a736a147d3";
 
@@ -12,16 +13,7 @@ class EndPoint {
             topHeadlines: {
                 endPoint: "https://newsapi.org/v2/top-headlines",
                 params: {
-                    country: [
-                        {
-                            code: "in",     // 2-letter ISO 3166-1 code
-                            name: "India"
-                        },
-                        {
-                            code: "us",
-                            name: "United States"
-                        }
-                    ],
+                    country: [],
                     category: [
                         "business",
                         "entertainment",
@@ -99,29 +91,24 @@ class EndPoint {
                         "ud",
                         "zh"
                     ],
-                    country: [
-                        {
-                            code: "in",     // 2-letter ISO 3166-1 code
-                            name: "India"
-                        },
-                        {
-                            code: "us",
-                            name: "United States"
-                        }
-                    ]
+                    country: []
                 }
             }
         };
-
-        // this.makeTopHeadlinesUrl = this.makeTopHeadlinesUrl.bind(this);
     }
 
     updateTopHeadlinesUrl() {
-        let url = "";
+        // let url = "";
 
-        url += this.endPoints.topHeadlines.endPoint + "?" + "country=" + this.endPoints.topHeadlines.params.country[0].code + "&" + "apiKey=" + this.apiKey;
+        // url += this.endPoints.topHeadlines.endPoint + "?" + "country=" + this.endPoints.topHeadlines.params.country[0].code + "&" + "apiKey=" + this.apiKey;
 
-        return encodeURI(url);
+        // return encodeURI(url);
+    }
+
+    updateSourcesUrl() {
+        this.sourcesUrl = `${this.endPoints.sources.endPoint}?apiKey=${this.apiKey}`;
+
+        console.log('Update sourcesUrl: ', this.sourcesUrl);
     }
 }
 
@@ -130,12 +117,91 @@ class DOM {
     constructor() {
 
     }
+
+    createOption(value) {
+        const option = document.createElement('option');
+
+        option.setAttribute('value', value);
+
+        return option;
+    }
+
+    populateInputFieldOptions(countries, sources) {
+        const endpoint = new EndPoint();
+
+        this.populateCategoryField(endpoint.endPoints.topHeadlines.params.category);
+        this.populateCountryField(countries);
+        this.populateSourcesField(sources);
+    }
+
+    populateCategoryField(categories) {
+        const categoryList = document.querySelector('#categories');
+
+        categories.forEach(category => {
+            const option = this.createOption(category);
+            categoryList.append(option);
+        });
+    }
+
+    populateCountryField(countries) {
+        const countryList = document.querySelector('#countries');
+
+        countries.forEach(country => {
+            const option = this.createOption(country);
+            countryList.append(option);
+        });
+    }
+
+    populateSourcesField(sources) {
+        const sourcesList = document.querySelector('#sources-list');
+
+        sources.forEach(source => {
+            const option = this.createOption(source);
+            sourcesList.append(option);
+        });
+    }
+}
+
+class DataFetch {
+    constructor() {
+        this.endpoint = new EndPoint();
+
+        this.countries = [];
+        this.sources = [];
+    }
+
+    getCountriesAndSources() {
+        this.endpoint.updateSourcesUrl();
+        
+        return fetch(this.endpoint.sourcesUrl);
+    }
+
+    storeCountriesAndSources(response) {
+        console.log('Response is: ', response);
+
+        if(response.status === "ok") {
+            response.sources.forEach(source => {
+                // console.log(source.id);
+                if(this.countries.indexOf(source.country) === -1)
+                    this.countries.push(source.country);
+                if(this.sources.indexOf(source.id) === -1)
+                    this.sources.push(source.id);
+            });
+        } else {
+            console.log(`Response error: code: ${response.code}\nmessage: ${response.message}`);
+        }
+        
+        this.countries.sort();
+    }
 }
 
 
 function startScript() {
     // Add handlers for events
     setEventHandlers();
+
+    // Populate input field options
+    createOptionsForInputFields();
 }
 
 
@@ -253,4 +319,17 @@ function enableOrDisableCategoryAndCountryField(decidingFieldValue) {
         categoryField.removeAttribute('disabled');
         countryField.removeAttribute('disabled');
     }
+}
+
+
+// ----------------
+function createOptionsForInputFields() {
+    const dataObj = new DataFetch();
+    const domObj = new DOM();
+
+    dataObj.getCountriesAndSources()
+        .then(res => res.json())
+        .then(res => dataObj.storeCountriesAndSources(res))
+        .then(() => domObj.populateInputFieldOptions(dataObj.countries, dataObj.sources))
+        .catch(err => console.log(err));
 }

@@ -1,2 +1,66 @@
 /* Font 'Roboto' from fonts.google.com */
 @import url('https://fonts.googleapis.com/css?family=Roboto');
+
+:root {
+    --colorA: #454545;
+    --colorB: #7777ff;
+    --colorC: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+#hdr {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    /* border-bottom: 1px solid var(--colorB); */
+    box-shadow: 0 0 35px 0 var(--colorA);
+    margin-bottom: 1rem;
+}
+
+#title {
+    flex-basis: 90%;
+}
+
+#title h1 {
+    user-select: none;
+    font-weight: 100;
+    color: var(--colorA);
+}
+
+#title h1::first-letter {
+    color: var(--colorC);
+    background: var(--colorB);
+    padding: 0 10px;
+}
+
+#search {
+    flex-basis: 10%;
+    text-align: right;
+}
+
+#search i {
+    cursor: pointer;
+    color: var(--colorB);
+    border: 1px solid var(--colorB);
+    border-radius: 3px;
+    padding: 10px;
+    transition: ease 0.3s;
+}
+
+#search i:hover {
+    color: var(--colorC);
+    background: var(--colorB);
+}
+
+#search-form {
+    display: none;
+}

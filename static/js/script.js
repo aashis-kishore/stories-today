@@ -143,6 +143,8 @@ function startScript() {
 function setEventHandlers() {
     addHandlerForClickOnSearch();
     addHandlerForClickOnContainer();
+    addHandlerForClickOnSearchBtn();
+    addHandlerForChangeInInputField();
 }
 
 // Add event handler functions
@@ -159,6 +161,19 @@ function addHandlerForClickOnContainer() {
 
     container.addEventListener('click', handleContainerClick)
 }
+
+function addHandlerForClickOnSearchBtn() {
+    const searchBtn = document.querySelector('.btn-search');
+
+    searchBtn.addEventListener('click', handleSearchBtnClick);
+}
+
+function addHandlerForChangeInInputField() {
+    const inputFields = document.querySelectorAll('#search-form input');
+
+    inputFields.forEach(inputField => inputField.addEventListener('change', handleInputFieldChange));
+}
+
 
 // Various event handler functions
 function handleSearchIconClick() {
@@ -180,5 +195,62 @@ function handleContainerClick() {
     if(searchForm.classList.contains('view-search-form')) {
         searchForm.classList.add('hide-search-form');
         searchForm.classList.remove('view-search-form');
+    }
+}
+
+function handleSearchBtnClick(event) {
+    console.log('Search Button Click');
+
+    // Stop form submission
+    event.preventDefault();
+
+    handleContainerClick();
+}
+
+function handleInputFieldChange(event) {
+    console.log('Input Field Change');
+
+    const inputField = event.target;
+    const inputFieldID = inputField.getAttribute('id');
+
+    identifyFieldAndAct(inputField, inputFieldID);
+}
+
+
+// Functions associated with handlers
+function identifyFieldAndAct(inputField, inputFieldID) {
+    if(inputFieldID === "category" || inputFieldID === "country") {
+        const categoryField = document.querySelector('#category');
+        const countryField = document.querySelector('#country');
+
+        enableOrDisableSourcesField(categoryField.value, countryField.value);
+    } else if(inputFieldID === "sources") {
+        enableOrDisableCategoryAndCountryField(inputField.value);
+    }
+}
+
+function enableOrDisableSourcesField(decidingFieldValue1, decidingFieldValue2) {
+    const sourcesField = document.querySelector('#sources');
+
+    console.log(sourcesField);
+
+    if(decidingFieldValue1 !== "" || decidingFieldValue2 !== "")
+        sourcesField.setAttribute('disabled', true);
+    else
+        sourcesField.removeAttribute('disabled');
+}
+
+function enableOrDisableCategoryAndCountryField(decidingFieldValue) {
+    const categoryField = document.querySelector('#category');
+    const countryField = document.querySelector('#country');
+
+    console.log(categoryField, countryField);
+
+    if(decidingFieldValue !== "") {
+        categoryField.setAttribute('disabled', true);
+        countryField.setAttribute('disabled', true);
+    } else {
+        categoryField.removeAttribute('disabled');
+        countryField.removeAttribute('disabled');
     }
 }

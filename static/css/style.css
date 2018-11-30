@@ -148,6 +148,7 @@ body {
 }
 
 #search-form .btn {
+    user-select: none;
     cursor: pointer;
     display: inline-block;
     padding: 10px;

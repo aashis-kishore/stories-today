@@ -105,7 +105,7 @@ class EndPoint {
         if(this.endPoints.topHeadlines.params.page >= 1)
             this.topHeadlinesUrl += `&page=${this.endPoints.topHeadlines.params.page}`;
 
-        console.log(this.topHeadlinesUrl);
+        console.log(`Update topHeadlinesUrl: ${this.topHeadlinesUrl}`);
     }
 
     updateSourcesUrl() {
@@ -165,17 +165,15 @@ class DOM {
 
 class DataFetch {
     constructor() {
-        this.endpoint = new EndPoint();
-
         this.categories = [];
         this.countries = [];
         this.sources = [];
     }
 
     getCategoriesCountriesAndSources() {
-        this.endpoint.updateSourcesUrl();
+        endpoint.updateSourcesUrl();
         
-        return fetch(this.endpoint.sourcesUrl);
+        return fetch(endpoint.sourcesUrl);
     }
 
     storeCategoriesCountriesAndSources(response) {
@@ -199,6 +197,11 @@ class DataFetch {
         this.countries.sort();
     }
 }
+
+// Global objects
+var endpoint = new EndPoint();
+var dom = new DOM();
+var dataFetch = new DataFetch();
 
 
 function startScript() {
@@ -329,12 +332,9 @@ function enableOrDisableCategoryAndCountryField(decidingFieldValue) {
 
 // ----------------
 function createOptionsForInputFields() {
-    const dataObj = new DataFetch();
-    const domObj = new DOM();
-
-    dataObj.getCategoriesCountriesAndSources()
+    dataFetch.getCategoriesCountriesAndSources()
         .then(res => res.json())
-        .then(res => dataObj.storeCategoriesCountriesAndSources(res))
-        .then(() => domObj.populateInputFieldOptions(dataObj.categories, dataObj.countries, dataObj.sources))
+        .then(res => dataFetch.storeCategoriesCountriesAndSources(res))
+        .then(() => dom.populateInputFieldOptions(dataFetch.categories, dataFetch.countries, dataFetch.sources))
         .catch(err => console.log(err));
 }

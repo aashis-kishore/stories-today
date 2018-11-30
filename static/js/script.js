@@ -90,7 +90,7 @@ class EndPoint {
     }
 
     updateTopHeadlinesUrl() {
-        this.topHeadlinesUrl = `${this.endPoints.topHeadlines}?apiKey=${this.apiKey}`;
+        this.topHeadlinesUrl = `${this.endPoints.topHeadlines.endPoint}?apiKey=${this.apiKey}`;
 
         if(this.endPoints.topHeadlines.params.q !== "")
             this.topHeadlinesUrl += `&q=${this.endPoints.topHeadlines.params.q}`;
@@ -100,7 +100,7 @@ class EndPoint {
             this.topHeadlinesUrl += `&country=${this.endPoints.topHeadlines.params.country.join(" ")}`;
         if(this.endPoints.topHeadlines.params.sources.length !== 0)
             this.topHeadlinesUrl += `&sources=${this.endPoints.topHeadlines.params.sources.join(" ")}`;
-        if(this.endPoints.topHeadlines.params.pageSize === 0)
+        if(this.endPoints.topHeadlines.params.pageSize >= 5)
             this.topHeadlinesUrl += `&pageSize=${this.endPoints.topHeadlines.params.pageSize}`;
         if(this.endPoints.topHeadlines.params.page >= 1)
             this.topHeadlinesUrl += `&page=${this.endPoints.topHeadlines.params.page}`;
@@ -168,6 +168,12 @@ class DataFetch {
         this.categories = [];
         this.countries = [];
         this.sources = [];
+    }
+
+    getStories() {
+        endpoint.updateTopHeadlinesUrl();
+
+        return fetch(endpoint.topHeadlinesUrl);
     }
 
     getCategoriesCountriesAndSources() {
@@ -278,6 +284,8 @@ function handleSearchBtnClick(event) {
     // Stop form submission
     event.preventDefault();
 
+    facilitateSearch();
+
     handleContainerClick();
 }
 
@@ -292,6 +300,72 @@ function handleInputFieldChange(event) {
 
 
 // Functions associated with handlers
+function facilitateSearch() {   
+    const searchObj = getInputFieldValues();
+
+    console.log(searchObj);
+
+    updateEndpointTopHeadlines(searchObj);
+
+    dataFetch.getStories()
+        .then(res => res.json())
+        .catch(err => console.log(err));
+}
+
+function getInputFieldValues() {
+    const query = document.querySelector('#query');
+    const category = document.querySelector('#category');
+    const country = document.querySelector('#country');
+    const sources = document.querySelector('#sources');
+
+    // console.log(query.value);
+
+    const searchObj = { q: query.value };
+
+    if(sources.getAttribute('disabled')) {
+        searchObj.category = category.value;
+        searchObj.country = country.value;
+        searchObj.sources = "";
+    } else {
+        searchObj.category = "";
+        searchObj.country = "";
+        searchObj.sources = sources.value;
+    }
+
+    return searchObj;
+}
+
+function updateEndpointTopHeadlines(searchObj) {
+    if(searchObj.q === "")
+        endpoint.endPoints.topHeadlines.params.q = "";
+    else
+        endpoint.endPoints.topHeadlines.params.q = searchObj.q;
+
+    if(searchObj.sources !== "" && searchObj.category === "" && searchObj.country === "") {
+        endpoint.endPoints.topHeadlines.params.sources = [searchObj.sources];
+        endpoint.endPoints.topHeadlines.params.category = [];
+        endpoint.endPoints.topHeadlines.params.country = [];
+    } else if(searchObj.sources === "" && (searchObj.category !== "" || searchObj.country !== "")) {
+        endpoint.endPoints.topHeadlines.params.sources = [];
+
+        if(searchObj.category !== "" && searchObj.country !== "") {
+            endpoint.endPoints.topHeadlines.params.category = [searchObj.category];
+            endpoint.endPoints.topHeadlines.params.country = [searchObj.country];
+        } else if(searchObj.category !== "") {
+            endpoint.endPoints.topHeadlines.params.category = [searchObj.category];
+            endpoint.endPoints.topHeadlines.params.country = [];
+        } else {
+            endpoint.endPoints.topHeadlines.params.category = [];
+            endpoint.endPoints.topHeadlines.params.country = [searchObj.country];
+        }
+    } else {
+        endpoint.endPoints.topHeadlines.params.category = ["general"];
+        endpoint.endPoints.topHeadlines.params.country = ["in"];
+    }
+
+    console.log(endpoint.endPoints.topHeadlines.params);
+}
+
 function identifyFieldAndAct(inputField, inputFieldID) {
     if(inputFieldID === "category" || inputFieldID === "country") {
         const categoryField = document.querySelector('#category');

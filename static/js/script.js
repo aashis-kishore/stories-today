@@ -98,10 +98,10 @@ class EndPoint {
     }
 
     updatePage(endPointName, page) {
-        console.log('Updating page');
-
         if((endPointName === "topHeadlines" || endPointName === "everything") && (page > 0 && page <= (dataFetch.maxPages || 100)))
             this.endPoints[endPointName].params.page = page;
+
+            console.log('Page updated to: ', this.endPoints[endPointName].params.page);
     }
 
     updateTopHeadlinesUrl() {
@@ -395,6 +395,9 @@ function handleSearchBtnClick(event) {
 
     // Stop form submission
     event.preventDefault();
+
+    // Reset page number to 1
+    endpoint.updatePage('topHeadlines', 1);
 
     facilitateSearch();
 

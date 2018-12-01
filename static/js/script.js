@@ -404,6 +404,9 @@ function startScript() {
 
     // Populate input field options
     createOptionsForInputFields();
+
+    // Fetch stories with default settings
+    dataFetch.fetchStoriesChain('topHeadlines');
 }
 
 

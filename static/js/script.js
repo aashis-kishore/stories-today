@@ -167,6 +167,8 @@ class DOM {
     }
 
     createStoryCard(story) {
+        const storyCardContainer = this.createDiv(['story-card-container']);
+
         const storyCard = this.createDiv(['story-card']);
 
         const storyCardFrontFace = this.createDiv(['story-card-face', 'story-card-front-face']);
@@ -198,7 +200,9 @@ class DOM {
         storyCard.append(storyCardFrontFace);
         storyCard.append(storyCardBackFace);
 
-        return storyCard;
+        storyCardContainer.append(storyCard);
+
+        return storyCardContainer;
     }
 
     populateInputFieldOptions(categories, countries, sources) {

@@ -177,6 +177,18 @@ class DOM {
         });
     }
 
+    sayResultsCategory(endPointName) {
+        const storyCategory = document.querySelector('#story-category h2');
+
+        storyCategory.classList.remove('no-results');
+        storyCategory.classList.add('results');
+
+        if(endPointName === "topHeadlines" || endPointName === "everything")
+            storyCategory.innerHTML = endpoint.endPoints[endPointName].params.category.join(" ");
+        else
+        storyCategory.innerHTML = "Unknown Category";
+    }
+
     sayNoResults() {
         const storyCategory = document.querySelector('#story-category h2');
 
@@ -249,6 +261,8 @@ class DataFetch {
         console.log('Response from: putStories: ', response);
 
         if(this.totalResults) {
+            dom.sayResultsCategory(endPointName);
+
             let page;
             if(endPointName === "topHeadlines" || endPointName === "everything")
                 page = endpoint.endPoints[endPointName].params.page;

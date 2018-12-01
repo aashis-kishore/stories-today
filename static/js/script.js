@@ -4,6 +4,9 @@ window.onload = startScript;
 // Endpoints
 class EndPoint {
     constructor() {
+        this.requestIsBeingProcessed = false;
+
+        this.lastFetchedUrl = "";
         this.topHeadlinesUrl = "";
         this.everythingUrl = "";
         this.sourcesUrl = "";
@@ -90,6 +93,18 @@ class EndPoint {
         };
     }
 
+    // toggleIsRequestBeingProcessed() {
+    //     this.requestIsBeingProcessed ? this.requestIsBeingProcessed = false : this.requestIsBeingProcessed = true;
+    // }
+
+    setIsRequestBeingProcessed() {
+        this.requestIsBeingProcessed = true;
+    }
+
+    clearIsRequestBeingProcessed() {
+        this.requestIsBeingProcessed = false;
+    }
+
     updatePageSize(endPointName, pageSize) {
         console.log('Updating pageSize');
 
@@ -125,8 +140,10 @@ class EndPoint {
 
     updateSourcesUrl() {
         this.sourcesUrl = `${this.endPoints.sources.endPoint}?apiKey=${this.apiKey}`;
+    }
 
-        console.log('Update sourcesUrl: ', this.sourcesUrl);
+    updateLastFetchedUrl() {
+        this.lastFetchedUrl = this.topHeadlinesUrl;
     }
 }
 
@@ -239,12 +256,9 @@ class DOM {
     }
 
     putStoryCardsToDom(response) {
-        console.log('Response from: putStoryCards: ', response.articles);
-
         const stories = document.querySelector('#stories');
 
         response.articles.forEach(story => {
-            // console.log(story);
             const storyCard = this.createStoryCard(story);
             stories.append(storyCard);
         });
@@ -271,13 +285,20 @@ class DOM {
     }
 
     clearDom() {
-        console.log('Clearing DOM');
-
         const stories = document.querySelector('#stories');
 
-        console.log(stories);
-
         stories.innerHTML = "";
+    }
+
+    clearInputFields() {
+        const inputFields = document.querySelectorAll('#search-form input');
+
+        // console.log(inputFields);
+
+        inputFields.forEach(inputField => {
+            inputField.value = "";
+            inputField.removeAttribute('disabled');
+        });
     }
 }
 
@@ -306,18 +327,26 @@ class DataFetch {
     }
 
     getStories(endPointName) {
-        let url = "";
-        if(endPointName === "topHeadlines") {
-            endpoint.updateTopHeadlinesUrl();
-            url = endpoint.topHeadlinesUrl;
-        } else if(endPointName === "everything") {
-            // endpoint.updateEverythingUrl();
-            url = endpoint.everythingUrl;
+        if(!endpoint.requestIsBeingProcessed) {
+            let url = "";
+            if(endPointName === "topHeadlines") {
+                endpoint.updateTopHeadlinesUrl();
+                url = endpoint.topHeadlinesUrl;
+            } else if(endPointName === "everything") {
+                // endpoint.updateEverythingUrl();
+                url = endpoint.everythingUrl;
+            }
+
+            if(endpoint.lastFetchedUrl === url) {
+                return Promise.reject(new Error('Url already Fetched'));
+            }
+            // mock lock
+            endpoint.setIsRequestBeingProcessed();
+            
+            return fetch(url);
+        } else {
+            return Promise.reject(new Error('Previous request is under processing'));
         }
-
-        console.log('Url is: ', url);
-
-        return fetch(url);
     }
 
     updateTotalResults(response) {
@@ -362,6 +391,9 @@ class DataFetch {
             dom.clearDom();
             dom.sayNoResults();
         }
+
+        endpoint.updateLastFetchedUrl();
+        endpoint.clearIsRequestBeingProcessed();
     }
 
     getCategoriesCountriesAndSources() {
@@ -371,8 +403,6 @@ class DataFetch {
     }
 
     storeCategoriesCountriesAndSources(response) {
-        console.log('Response is: ', response);
-
         if(response.status === "ok") {
             response.sources.forEach(source => {
                 // console.log(source.id);
@@ -416,6 +446,7 @@ function setEventHandlers() {
     addHandlerForClickOnContainer();
     addHandlerForClickOnSearchBtn();
     addHandlerForChangeInInputField();
+    addHandlerForScrollInDocument();
 }
 
 // Add event handler functions
@@ -441,6 +472,10 @@ function addHandlerForChangeInInputField() {
     const inputFields = document.querySelectorAll('#search-form input');
 
     inputFields.forEach(inputField => inputField.addEventListener('change', handleInputFieldChange));
+}
+
+function addHandlerForScrollInDocument() {
+    document.addEventListener('scroll', handleScrollInDocument);
 }
 
 
@@ -479,6 +514,8 @@ function handleSearchBtnClick(event) {
     facilitateSearch();
 
     handleContainerClick();
+
+    dom.clearInputFields();
 }
 
 function handleInputFieldChange(event) {
@@ -490,12 +527,25 @@ function handleInputFieldChange(event) {
     identifyFieldAndAct(inputField, inputFieldID);
 }
 
+function handleScrollInDocument() {
+    const lastStory = document.querySelector('#stories .story-card-container:last-child');
+    
+    const lastStoryOffset = lastStory.offsetTop + lastStory.clientHeight;
+
+    const pageOffset = window.pageYOffset + window.innerHeight;
+
+    if(pageOffset > lastStoryOffset - 10) {
+        const page = endpoint.endPoints['topHeadlines'].params.page;
+        endpoint.updatePage('topHeadlines', page+1);
+
+        dataFetch.fetchStoriesChain("topHeadlines");
+    }
+}
+
 
 // Functions associated with handlers
 function facilitateSearch() {   
     const searchObj = getInputFieldValues();
-
-    console.log(searchObj);
 
     updateEndpointTopHeadlines(searchObj);
 
@@ -515,8 +565,6 @@ function getInputFieldValues() {
     const category = document.querySelector('#category');
     const country = document.querySelector('#country');
     const sources = document.querySelector('#sources');
-
-    // console.log(query.value);
 
     const searchObj = { q: query.value };
 
@@ -560,8 +608,6 @@ function updateEndpointTopHeadlines(searchObj) {
         endpoint.endPoints.topHeadlines.params.category = ["general"];
         endpoint.endPoints.topHeadlines.params.country = ["in"];
     }
-
-    console.log(endpoint.endPoints.topHeadlines.params);
 }
 
 function identifyFieldAndAct(inputField, inputFieldID) {
@@ -577,8 +623,6 @@ function identifyFieldAndAct(inputField, inputFieldID) {
 
 function enableOrDisableSourcesField(decidingFieldValue1, decidingFieldValue2) {
     const sourcesField = document.querySelector('#sources');
-
-    console.log(sourcesField);
 
     if(decidingFieldValue1 !== "" || decidingFieldValue2 !== "")
         sourcesField.setAttribute('disabled', true);

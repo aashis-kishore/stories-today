@@ -530,15 +530,17 @@ function handleInputFieldChange(event) {
 function handleScrollInDocument() {
     const lastStory = document.querySelector('#stories .story-card-container:last-child');
     
-    const lastStoryOffset = lastStory.offsetTop + lastStory.clientHeight;
+    if(lastStory) {
+        const lastStoryOffset = lastStory.offsetTop + lastStory.clientHeight;
 
-    const pageOffset = window.pageYOffset + window.innerHeight;
+        const pageOffset = window.pageYOffset + window.innerHeight;
 
-    if(pageOffset > lastStoryOffset - 10) {
-        const page = endpoint.endPoints['topHeadlines'].params.page;
-        endpoint.updatePage('topHeadlines', page+1);
+        if(pageOffset > lastStoryOffset - 10) {
+            const page = endpoint.endPoints['topHeadlines'].params.page;
+            endpoint.updatePage('topHeadlines', page+1);
 
-        dataFetch.fetchStoriesChain("topHeadlines");
+            dataFetch.fetchStoriesChain("topHeadlines");
+        }
     }
 }
 

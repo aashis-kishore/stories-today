@@ -171,8 +171,7 @@ body {
     top: 80px;
     padding: 0 1rem;
     width: 100%;
-    height: calc(100% - 80px);
-    background: var(--colorB);
+    /* background: var(--colorB); */
 }
 
 #story-category {
@@ -203,33 +202,117 @@ body {
     width: 200px;
     height: 260px;
     perspective: 600px;
-}
+} */
 
-.card {
+/* .card {
     width: 100%;
     height: 100%;
     position: relative;
     transform-origin: center right;
     transition: transform 0.5s ease;
     transform-style: preserve-3d;
-}
+} */
 
-.card-face {
+/* .card-face {
     position: absolute;
     height: 100%;
     width: 100%;
     backface-visibility: hidden;
-}
+} */
 
-.card-face-front {
+/* .card-face-front {
     background: red;
+} */
+
+/* .card-face-back {
+    background: green;
+    transform: rotateY(180deg);
+} */
+
+/* .card:hover {
+    transform: translateX(-100%) rotateY(-180deg);
+} */
+
+#stories {
+    width: 280px;
+    height: 350px;
+    perspective: 35000px;
 }
 
-.card-face-back {
-    background: green;
+.story-card {
+    width: 90%;
+    height: 100%;
+    position: relative;
+    transform-origin: center right;
+    transition: transform 0.5s ease;
+    transform-style: preserve-3d;
+    margin: 1rem;
+}
+
+.story-card:first-child {
+    margin-top: 0;
+}
+
+.story-card:hover {
+    transform: translateX(-100%) rotateY(-180deg);
+}
+
+.story-card-face {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    backface-visibility: hidden;
+    border-radius: 3px;
+}
+
+.story-card-front-face {
+    background: var(--colorC);
+}
+
+.story-image {
+    border-radius: 3px;
+    height: 70%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.story-image.no-image {
+    background: linear-gradient(-45deg, var(--colorB), var(--colorA));
+}
+
+.story-title {
+    padding: 0.5rem;
+}
+
+.story-title h3 {
+    user-select: none;
+    width: 100%;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    font-weight: 100;
+    color: var(--colorA);
+}
+
+.story-card-back-face {
+    background: var(--colorB);
     transform: rotateY(180deg);
 }
 
-.card:hover {
-    transform: translateX(-100%) rotateY(-180deg);
-} */
+.story-brief {
+    padding: 1rem;
+    height: 100%;
+}
+
+.story-brief a {
+    display: block;
+    cursor: pointer;
+    text-decoration: none;
+    height: 100%;
+    font-weight: 100;
+    font-size: 1.2rem;
+    color: var(--colorC);
+}
+
+@media screen and (min-width: 768px) {
+}

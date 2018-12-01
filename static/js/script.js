@@ -132,16 +132,73 @@ class EndPoint {
 
 // DOM manipulation and data fetching
 class DOM {
-    constructor() {
-
-    }
-
     createOption(value) {
         const option = document.createElement('option');
 
         option.setAttribute('value', value);
 
         return option;
+    }
+
+    createDiv(classList) {
+        const div = document.createElement('div');
+
+        classList.forEach(cls => div.classList.add(cls));
+
+        return div;
+    }
+
+    createTitle(title) {
+        const titleElement = document.createElement('h3');
+
+        titleElement.innerText = title;
+
+        return titleElement;
+    }
+
+    createAnchor(content, link) {
+        const anchor = document.createElement('a');
+
+        anchor.setAttribute('href', link);
+        anchor.setAttribute('target', '_blank');
+        anchor.innerText = content;
+
+        return anchor;
+    }
+
+    createStoryCard(story) {
+        const storyCard = this.createDiv(['story-card']);
+
+        const storyCardFrontFace = this.createDiv(['story-card-face', 'story-card-front-face']);
+
+        const storyImage = this.createDiv(['story-image']);
+        if(story.urlToImage)
+            storyImage.style.backgroundImage = 'url(' + story.urlToImage + ')';
+        else
+            storyImage.classList.add('no-image');
+
+        const storyTitle = this.createDiv(['story-title']);
+        storyTitle.append(this.createTitle(story.title));
+
+        storyCardFrontFace.append(storyImage);
+        storyCardFrontFace.append(storyTitle);
+
+        const storyCardBackFace = this.createDiv(['story-card-face', 'story-card-back-face']);
+
+        const storyBrief = this.createDiv(['story-brief']);
+        if(story.description)
+            storyBrief.append(this.createAnchor(story.description, story.url))
+        else if(story.content)
+            storyBrief.append(this.createAnchor(story.content, story.url));
+        else
+            storyBrief.append(this.createAnchor('Click to go to story', story.url));
+
+        storyCardBackFace.append(storyBrief);
+
+        storyCard.append(storyCardFrontFace);
+        storyCard.append(storyCardBackFace);
+
+        return storyCard;
     }
 
     populateInputFieldOptions(categories, countries, sources) {
@@ -174,6 +231,18 @@ class DOM {
         sources.forEach(source => {
             const option = this.createOption(source);
             sourcesList.append(option);
+        });
+    }
+
+    putStoryCardsToDom(response) {
+        console.log('Response from: putStoryCards: ', response.articles);
+
+        const stories = document.querySelector('#stories');
+
+        response.articles.forEach(story => {
+            // console.log(story);
+            const storyCard = this.createStoryCard(story);
+            stories.append(storyCard);
         });
     }
 
@@ -266,7 +335,7 @@ class DataFetch {
     }
 
     putStoriesToDom(endPointName, response) {
-        console.log('Response from: putStories: ', response);
+        // console.log('Response from: putStories: ', response);
 
         if(this.totalResults) {
             dom.sayResultsCategory(endPointName);
@@ -277,10 +346,11 @@ class DataFetch {
 
             if(page > 0 && page === 1) {
                 dom.clearDom();
-                const stories = document.querySelector('#stories');
-                stories.innerHTML = response.articles[1].title;
+                dom.putStoryCardsToDom(response);
+                // const stories = document.querySelector('#stories');
+                // stories.innerHTML = response.articles[1].title;
             } else {
-
+                dom.putStoryCardsToDom(response);
             }
             
         } else {

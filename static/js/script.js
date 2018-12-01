@@ -5,6 +5,7 @@ window.onload = startScript;
 class EndPoint {
     constructor() {
         this.topHeadlinesUrl = "";
+        this.everythingUrl = "";
         this.sourcesUrl = "";
 
         this.apiKey = "9b73824e82ba4b5eaae944a736a147d3";
@@ -89,6 +90,20 @@ class EndPoint {
         };
     }
 
+    updatePageSize(endPointName, pageSize) {
+        console.log('Updating pageSize');
+
+        if((endPointName === "topHeadlines" || endPointName === "everything") && (pageSize > 0 && pageSize <= 100))
+            this.endPoints[endPointName].params.pageSize = pageSize;
+    }
+
+    updatePage(endPointName, page) {
+        console.log('Updating page');
+
+        if((endPointName === "topHeadlines" || endPointName === "everything") && (page > 0 && page <= (dataFetch.maxPages || 100)))
+            this.endPoints[endPointName].params.page = page;
+    }
+
     updateTopHeadlinesUrl() {
         this.topHeadlinesUrl = `${this.endPoints.topHeadlines.endPoint}?apiKey=${this.apiKey}`;
 
@@ -161,6 +176,13 @@ class DOM {
             sourcesList.append(option);
         });
     }
+
+    sayNoResults() {
+        const storyCategory = document.querySelector('#story-category');
+
+        storyCategory.classList.add('no-results');
+        storyCategory.innerHTML = 'No result found';
+    }
 }
 
 class DataFetch {
@@ -168,12 +190,73 @@ class DataFetch {
         this.categories = [];
         this.countries = [];
         this.sources = [];
+
+        this.totalResults = 0;
+        this.maxPages = 0;
     }
 
-    getStories() {
-        endpoint.updateTopHeadlinesUrl();
+    fetchStoriesChain(endPointName) {
+        this.getStories(endPointName)
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === "ok")
+                    return res
+                else if(res.status === "error")
+                    throw new Error(res.code);
+            })
+            .then(res => this.updateTotalResults(res))
+            .then(res => this.putStoriesToDom(endPointName, res))
+            .catch(err => console.log(err));
+    }
 
-        return fetch(endpoint.topHeadlinesUrl);
+    getStories(endPointName) {
+        let url = "";
+        if(endPointName === "topHeadlines") {
+            endpoint.updateTopHeadlinesUrl();
+            url = endpoint.topHeadlinesUrl;
+        } else if(endPointName === "everything") {
+            // endpoint.updateEverythingUrl();
+            url = endpoint.everythingUrl;
+        }
+
+        console.log('Url is: ', url);
+
+        return fetch(url);
+    }
+
+    updateTotalResults(response) {
+        this.totalResults = response.totalResults;
+
+        this.updateMaxPages();
+
+        console.log('totalResults: ', this.totalResults);
+
+        return response;
+    }
+
+    updateMaxPages() {
+        console.log('Updating maxPages');
+
+        const pageSize = endpoint.endPoints.topHeadlines.params.pageSize;
+
+        this.maxPages = Math.ceil(this.totalResults / pageSize);
+
+        console.log('maxPages is: ', this.maxPages);
+    }
+
+    putStoriesToDom(endPointName, response) {
+        console.log('Response from: putStories: ', response);
+
+        if(this.totalResults) {
+            let page;
+            if(endPointName === "topHeadlines" || endPointName === "everything")
+                page = endpoint.endPoints[endPointName].params.page;
+
+            const stories = document.querySelector('#stories');
+            stories.innerHTML = response.articles[1].title;
+        } else {
+            dom.sayNoResults();
+        }
     }
 
     getCategoriesCountriesAndSources() {
@@ -307,9 +390,11 @@ function facilitateSearch() {
 
     updateEndpointTopHeadlines(searchObj);
 
-    dataFetch.getStories()
-        .then(res => res.json())
-        .catch(err => console.log(err));
+    // dataFetch.getStories()
+    //     .then(res => res.json())
+    //     .catch(err => console.log(err));
+
+    dataFetch.fetchStoriesChain("topHeadlines");
 }
 
 function getInputFieldValues() {

@@ -178,8 +178,9 @@ class DOM {
     }
 
     sayNoResults() {
-        const storyCategory = document.querySelector('#story-category');
+        const storyCategory = document.querySelector('#story-category h2');
 
+        storyCategory.classList.remove('results');
         storyCategory.classList.add('no-results');
         storyCategory.innerHTML = 'No results found';
     }

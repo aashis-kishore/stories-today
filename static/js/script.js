@@ -271,6 +271,8 @@ class DOM {
 
         const stories = document.querySelector('#stories');
 
+        console.log(stories);
+
         stories.innerHTML = "";
     }
 }
@@ -347,13 +349,13 @@ class DataFetch {
             if(page > 0 && page === 1) {
                 dom.clearDom();
                 dom.putStoryCardsToDom(response);
-                // const stories = document.querySelector('#stories');
-                // stories.innerHTML = response.articles[1].title;
             } else {
                 dom.putStoryCardsToDom(response);
             }
             
         } else {
+            console.log('Say no results');
+            dom.clearDom();
             dom.sayNoResults();
         }
     }
@@ -412,8 +414,6 @@ function setEventHandlers() {
 // Add event handler functions
 function addHandlerForClickOnSearch() {
     const searchIcon = document.querySelector("#search i");
-
-    console.log(searchIcon);
 
     searchIcon.addEventListener('click', handleSearchIconClick);
 }
@@ -492,11 +492,15 @@ function facilitateSearch() {
 
     updateEndpointTopHeadlines(searchObj);
 
-    // dataFetch.getStories()
-    //     .then(res => res.json())
-    //     .catch(err => console.log(err));
-
     dataFetch.fetchStoriesChain("topHeadlines");
+}
+
+function removeCardFlippedClass() {
+    const storyCards = document.querySelectorAll('.story-card');
+
+    storyCards.forEach(storyCard => {
+        storyCard.classList.remove('card-flipped');
+    });
 }
 
 function getInputFieldValues() {

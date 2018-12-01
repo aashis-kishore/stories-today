@@ -186,7 +186,7 @@ class DOM {
         if(endPointName === "topHeadlines" || endPointName === "everything")
             storyCategory.innerHTML = endpoint.endPoints[endPointName].params.category.join(" ");
         else
-        storyCategory.innerHTML = "Unknown Category";
+            storyCategory.innerHTML = "Unknown Category";
     }
 
     sayNoResults() {
@@ -195,6 +195,14 @@ class DOM {
         storyCategory.classList.remove('results');
         storyCategory.classList.add('no-results');
         storyCategory.innerHTML = 'No results found';
+    }
+
+    clearDom() {
+        console.log('Clearing DOM');
+
+        const stories = document.querySelector('#stories');
+
+        stories.innerHTML = "";
     }
 }
 
@@ -267,8 +275,14 @@ class DataFetch {
             if(endPointName === "topHeadlines" || endPointName === "everything")
                 page = endpoint.endPoints[endPointName].params.page;
 
-            const stories = document.querySelector('#stories');
-            stories.innerHTML = response.articles[1].title;
+            if(page > 0 && page === 1) {
+                dom.clearDom();
+                const stories = document.querySelector('#stories');
+                stories.innerHTML = response.articles[1].title;
+            } else {
+
+            }
+            
         } else {
             dom.sayNoResults();
         }

@@ -348,7 +348,10 @@ class DataFetch {
             }
             // mock lock
             endpoint.setIsRequestBeingProcessed();
-            setTimeout(endpoint.clearIsRequestBeingProcessed, 3000);
+            setTimeout(() => {
+                console.log('Forced lock release');
+                endpoint.requestIsBeingProcessed = false
+            }, 1000);
             
             return fetch(url);
         } else {

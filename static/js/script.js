@@ -102,7 +102,10 @@ class EndPoint {
     }
 
     clearIsRequestBeingProcessed() {
-        this.requestIsBeingProcessed = false;
+        if(this.requestIsBeingProcessed) {
+            console.log('Releasing lock');
+            this.requestIsBeingProcessed = false;
+        }
     }
 
     updatePageSize(endPointName, pageSize) {
@@ -342,6 +345,7 @@ class DataFetch {
             }
             // mock lock
             endpoint.setIsRequestBeingProcessed();
+            setTimeout(endpoint.clearIsRequestBeingProcessed, 3000);
             
             return fetch(url);
         } else {

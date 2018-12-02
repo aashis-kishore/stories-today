@@ -552,6 +552,8 @@ function handleScrollInDocument() {
             dataFetch.fetchStoriesChain("topHeadlines");
         }
     }
+
+    toggleToTopBtnVisibility();
 }
 
 
@@ -654,6 +656,22 @@ function enableOrDisableCategoryAndCountryField(decidingFieldValue) {
     } else {
         categoryField.removeAttribute('disabled');
         countryField.removeAttribute('disabled');
+    }
+}
+
+function toggleToTopBtnVisibility() {
+    // console.log('To Top Btn Visibility');
+    console.log(`outer height: ${window.outerHeight} pageYoffset: ${window.pageYOffset} inner height: ${window.innerHeight} scroll height: ${document.body.scrollHeight}`);
+    const scrollToTopBtn = document.querySelector('#scrollTop');
+
+    if(window.pageYOffset > (document.body.scrollHeight*0.25)) {
+        scrollToTopBtn.style.visibility = 'visible';
+        scrollToTopBtn.classList.add('view-scroll-top-btn');
+        scrollToTopBtn.classList.remove('hide-scroll-top-btn');
+    } else {
+        scrollToTopBtn.style.visibility = 'hidden';
+        scrollToTopBtn.classList.add('hide-scroll-top-btn');
+        scrollToTopBtn.classList.remove('view-scroll-top-btn');
     }
 }
 

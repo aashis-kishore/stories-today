@@ -332,6 +332,7 @@ body {
 }
 
 #scrollTop {
+    visibility: hidden;
     cursor: pointer;
     position: fixed;
     right: 40px;
@@ -348,6 +349,40 @@ body {
     color: var(--colorC);
     background: var(--colorB);
     transform: rotate(360deg);
+}
+
+@keyframes hide-scroll-top-btn {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.2);
+    }
+}
+
+@keyframes view-scroll-top-btn {
+    from {
+        opacity: 0;
+        transform: scale(0.2);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.hide-scroll-top-btn {
+    animation: hide-scroll-top-btn ease 0.3s;
+    opacity: 0;
+    transform: scale(0.2);
+}
+
+.view-scroll-top-btn {
+    animation: view-scroll-top-btn ease 0.3s;
+    opacity: 1;
+    transform: scale(1);
 }
 
 #scrollTop i {

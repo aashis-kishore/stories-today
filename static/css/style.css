@@ -390,6 +390,49 @@ body {
     border-radius: 50%;
 }
 
+@media screen and (min-width: 320px) and (max-width: 767px) and (orientation: landscape) {
+    #search-form {
+        position: fixed;
+        top: -300px;
+        left: 0;
+        background: rgba(255, 255, 255, 0.95);
+        width: 100%;
+        /* min-height: 50%; */
+        /* height: 100%; */
+        height: 300px;
+        padding: 2rem 0;
+        z-index: 2;
+    }
+
+    @keyframes hide-search-form {
+        from {
+            top: 0;
+        }
+        to {
+            top: -300px;
+        }
+    }
+    
+    @keyframes view-search-form {
+        from {
+            top: -300px;
+        }
+        to {
+            top: 0;
+        }
+    }
+    
+    .hide-search-form {
+        animation: hide-search-form ease 0.6s;
+        top: -300px !important;
+    }
+    
+    .view-search-form {
+        animation: view-search-form ease 0.6s;
+        top: 0 !important;
+    }
+}
+
 @media screen and (min-width: 768px) {
     #search-form label {
         font-size: 1.4rem;

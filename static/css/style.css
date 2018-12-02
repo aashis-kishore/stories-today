@@ -240,9 +240,9 @@ body {
     transform: translateX(-100%) rotateY(-180deg);
 } */
 
-#story-board {
+/* #story-board {
     perspective: 600px;
-}
+} */
 
 #stories {
     display: flex;
@@ -331,6 +331,30 @@ body {
     color: var(--colorC);
 }
 
+#scrollTop {
+    cursor: pointer;
+    position: fixed;
+    right: 40px;
+    bottom: 40px;
+    padding: 10px 12px 12px 12px;
+    border-radius: 50%;
+    border: 1px solid var(--colorB);
+    color: var(--colorB);
+    background: transparent;
+    transition: ease 0.3s;
+}
+
+#scrollTop:hover {
+    color: var(--colorC);
+    background: var(--colorB);
+    transform: rotate(360deg);
+}
+
+#scrollTop i {
+    padding: 4px;
+    border-radius: 50%;
+}
+
 @media screen and (min-width: 768px) {
     #search-form label {
         font-size: 1.4rem;
@@ -343,5 +367,11 @@ body {
 
     #search-form .btn {
         margin-top: 4rem;
+    }
+}
+
+@media screen and (min-width: 1600px) {
+    #stories {
+        margin: 0 1rem;
     }
 }

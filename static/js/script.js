@@ -98,7 +98,10 @@ class EndPoint {
     // }
 
     setIsRequestBeingProcessed() {
-        this.requestIsBeingProcessed = true;
+        if(!this.requestIsBeingProcessed) {
+            console.log('Acquiring lock');
+            this.requestIsBeingProcessed = true;
+        }
     }
 
     clearIsRequestBeingProcessed() {

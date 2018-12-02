@@ -457,6 +457,7 @@ function setEventHandlers() {
     addHandlerForClickOnSearchBtn();
     addHandlerForChangeInInputField();
     addHandlerForScrollInDocument();
+    addHandlerForScrollToTopBtnClick();
 }
 
 // Add event handler functions
@@ -488,6 +489,11 @@ function addHandlerForScrollInDocument() {
     document.addEventListener('scroll', handleScrollInDocument);
 }
 
+function addHandlerForScrollToTopBtnClick() {
+    const scrollTopBtn = document.querySelector('#scrollTop');
+
+    scrollTopBtn.addEventListener('click', handleScrollToTopBtnClick);
+}
 
 // Various event handler functions
 function handleSearchIconClick() {
@@ -555,6 +561,10 @@ function handleScrollInDocument() {
 
     toggleToTopBtnVisibility();
 }
+
+function handleScrollToTopBtnClick() {
+    window.scrollTo(0, 0);
+} 
 
 
 // Functions associated with handlers
@@ -661,7 +671,7 @@ function enableOrDisableCategoryAndCountryField(decidingFieldValue) {
 
 function toggleToTopBtnVisibility() {
     // console.log('To Top Btn Visibility');
-    console.log(`outer height: ${window.outerHeight} pageYoffset: ${window.pageYOffset} inner height: ${window.innerHeight} scroll height: ${document.body.scrollHeight}`);
+    // console.log(`outer height: ${window.outerHeight} pageYoffset: ${window.pageYOffset} inner height: ${window.innerHeight} scroll height: ${document.body.scrollHeight}`);
     const scrollToTopBtn = document.querySelector('#scrollTop');
 
     if(window.pageYOffset > (document.body.scrollHeight*0.25)) {
